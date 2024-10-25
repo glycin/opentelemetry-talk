@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: kotlin-backend
+  name: kotlin-backend
+spec:
+  type: LoadBalancer
+  selector:
+    app: kotlin-backend
+  ports:
+    - name: http
+      protocol: TCP
+      port: 9001
+      targetPort: 9001

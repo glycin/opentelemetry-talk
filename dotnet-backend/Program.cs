@@ -7,8 +7,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddHttpClient();
+builder.Services.AddHealthChecks();
 
 var app = builder.Build();
+var persistenceServiceBaseUrl = System.Environment.GetEnvironmentVariable("ENV_PERSISTENCE_URL") ?? "http://localhost:1337";
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -21,7 +23,7 @@ if (app.Environment.IsDevelopment())
 
 app.MapGet("/init", async(HttpClient httpClient) =>
 {
-    var requestUrl = "http://localhost:1337/session/init";
+    var requestUrl = persistenceServiceBaseUrl + "/session/init";
     var response = await httpClient.GetAsync(requestUrl);
     if (response.IsSuccessStatusCode)
     {
@@ -38,7 +40,7 @@ app.MapGet("/init", async(HttpClient httpClient) =>
 
 app.MapGet("/latestState", async (HttpClient httpClient) =>
 {
-    var requestUrl = "http://localhost:1337/session/getLatestState";
+    var requestUrl = persistenceServiceBaseUrl + "/session/getLatestState";
     var response = await httpClient.GetAsync(requestUrl);
     if (response.IsSuccessStatusCode)
     {
@@ -53,5 +55,6 @@ app.MapGet("/latestState", async (HttpClient httpClient) =>
 .WithName("GetLatestState")
 .WithOpenApi();
 
+app.MapHealthChecks("/health");
 
 app.Run();

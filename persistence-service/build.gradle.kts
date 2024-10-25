@@ -1,12 +1,12 @@
 plugins {
     kotlin("jvm") version "2.0.21"
     kotlin("plugin.spring") version "2.0.21"
-    id("org.springframework.boot") version "3.3.4"
+    id("org.springframework.boot") version "3.3.5"
     id("io.spring.dependency-management") version "1.1.6"
 }
 
 group = "com.glycin"
-version = "0.0.1-SNAPSHOT"
+version = project.findProperty("deployVersion") ?: "0.0.1-SNAPSHOT"
 
 java {
     toolchain {
@@ -19,6 +19,7 @@ repositories {
 }
 
 dependencies {
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
@@ -32,9 +33,15 @@ kotlin {
         freeCompilerArgs.addAll("-Xjsr305=strict")
     }
 
-    jvmToolchain(22)
+    jvmToolchain(21)
 }
 
-tasks.withType<Test> {
-    useJUnitPlatform()
+tasks {
+    withType<Test> {
+        useJUnitPlatform()
+    }
+
+    bootBuildImage {
+        imageName.set("europe-west4-docker.pkg.dev/operationalexcellence-439615/operational-excellence/persistence-service:$version")
+    }
 }

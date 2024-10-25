@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dotnet-backend
+  labels:
+    app: dotnet-backend
+    app.kubernetes.io/name: dotnet-backend
+    app.kubernetes.io/version: "0.0.1-SNAPSHOT"
+    app.kubernetes.io/component: backend
+
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dotnet-backend
+  template:
+    metadata:
+      labels:
+        app: dotnet-backend
+    spec:
+      containers:
+        - image: europe-west4-docker.pkg.dev/operationalexcellence-439615/operational-excellence/dotnet-backend:0.0.1-SNAPSHOT
+          name: dotnet-backend
+          imagePullPolicy: Always
+          resources:
+            limits:
+              memory: "1Gi"
+            requests:
+              cpu: "1.0"
+              memory: "1Gi"
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 20
+            failureThreshold: 5
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 20
+            failureThreshold: 5
+          ports:
+            - name: http
+              containerPort: 8080
+          env:
+            - name: ENV_PERSISTENCE_URL
+              value: "http://persistence-service.default.svc.cluster.local:1337"
