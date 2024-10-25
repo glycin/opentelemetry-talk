@@ -1,5 +1,6 @@
 package com.glycin.persistenceservice.controllers
 
+import com.glycin.persistenceservice.model.Player
 import com.glycin.persistenceservice.model.Session
 import com.glycin.persistenceservice.service.PlayerService
 import com.glycin.persistenceservice.service.SessionService
@@ -40,6 +41,13 @@ class TheOneController(
     fun getLatestState(): ResponseEntity<Session> {
         sessionService.getActiveSession()?.let {
             return ResponseEntity.ok(it)
+        } ?: return ResponseEntity.notFound().build()
+    }
+
+    @GetMapping("/player/getLatestState")
+    fun getLatestPlayersState(): ResponseEntity<List<Player>> {
+        sessionService.getActiveSession()?.let {
+            return ResponseEntity.ok(it.players)
         } ?: return ResponseEntity.notFound().build()
     }
 

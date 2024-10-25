@@ -1,3 +1,6 @@
+using dotnet_backend.Model;
+using System.Text.Json;
+
 var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -23,7 +26,8 @@ app.MapGet("/init", async(HttpClient httpClient) =>
     if (response.IsSuccessStatusCode)
     {
         var content = await response.Content.ReadAsStringAsync();
-        return Results.Ok(content);
+        var session = JsonSerializer.Deserialize<Session>(content);
+        return Results.Ok(session);
     } else
     {
         return Results.StatusCode((int)response.StatusCode);
