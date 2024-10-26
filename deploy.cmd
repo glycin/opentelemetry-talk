@@ -1,6 +1,8 @@
 @echo off
 set DEPLOY_VERSION=0.0.1-SNAPSHOT
 
+kubectl apply -f opentelemetry/opentelemetry-collector.yaml
+
 cd kotlin-backend
 call gradlew -PdeployVersion=%DEPLOY_VERSION% bootBuildImage
 docker push europe-west4-docker.pkg.dev/operationalexcellence-439615/operational-excellence/kotlin-backend:%DEPLOY_VERSION%

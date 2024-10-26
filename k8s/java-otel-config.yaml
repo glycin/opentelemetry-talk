@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: java-otel-config
+data:
+  OTEL_JAVAAGENT_ENABLED: "true" # Enables the OpenTelemetry Java agent
+  OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector:4318" # Specifies the OpenTelemetry Collector endpoint
+  OTEL_TRACES_EXPORTER: "otlp" # Export traces to the OpenTelemetry Collector
+  OTEL_METRICS_EXPORTER: "otlp" # Export metrics to the OpenTelemetry Collector
+  OTEL_LOGS_EXPORTER: "otlp" # Export logs to the OpenTelemetry Collector
+  OTEL_RESOURCE_PROVIDERS_GCP_ENABLED: "true" # Enable some Google Cloud-specific resource info
+  OTEL_TRACES_SAMPLER: "always_on" # Sample ALL THE THINGS!!!

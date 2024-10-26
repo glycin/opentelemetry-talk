@@ -1,0 +1,296 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: otel-agent-conf
+  labels:
+    app: opentelemetry
+    component: otel-agent-conf
+data:
+  otel-agent-config: |
+    receivers:
+      otlp:
+        protocols:
+          grpc:
+            endpoint: ${env:MY_POD_IP}:4317
+          http:
+            endpoint: ${env:MY_POD_IP}:4318
+    exporters:
+      otlp:
+        endpoint: "otel-collector.default:4317"
+        tls:
+          insecure: true
+          insecure_skip_verify: true
+        sending_queue:
+          num_consumers: 4
+          queue_size: 100
+        retry_on_failure:
+          enabled: true
+    processors:
+      batch:
+      memory_limiter:
+        # 80% of maximum memory up to 2G
+        limit_mib: 400
+        # 25% of limit up to 2G
+        spike_limit_mib: 100
+        check_interval: 5s
+    extensions:
+      zpages: {}
+    service:
+      extensions: [zpages]
+      pipelines:
+        traces:
+          receivers: [otlp]
+          processors: [memory_limiter, batch]
+          exporters: [otlp]
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: otel-agent
+  labels:
+    app: opentelemetry
+    component: otel-agent
+spec:
+  selector:
+    matchLabels:
+      app: opentelemetry
+      component: otel-agent
+  template:
+    metadata:
+      labels:
+        app: opentelemetry
+        component: otel-agent
+    spec:
+      containers:
+        - command:
+            - "/otelcol-contrib"
+            - "--config=/conf/otel-agent-config.yaml"
+          image: otel/opentelemetry-collector-contrib:0.112.0
+          name: otel-agent
+          resources:
+            limits:
+              cpu: 500m
+              memory: 500Mi
+            requests:
+              cpu: 100m
+              memory: 100Mi
+          ports:
+            - containerPort: 55679 # ZPages endpoint.
+            - containerPort: 4317 # Default OpenTelemetry receiver port.
+            - containerPort: 8888  # Metrics.
+          env:
+            - name: MY_POD_IP
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: status.podIP
+            - name: GOMEMLIMIT
+              value: 400MiB
+          volumeMounts:
+            - name: otel-agent-config-vol
+              mountPath: /conf
+      volumes:
+        - configMap:
+            name: otel-agent-conf
+            items:
+              - key: otel-agent-config
+                path: otel-agent-config.yaml
+          name: otel-agent-config-vol
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: otel-collector-conf
+  labels:
+    app: opentelemetry
+    component: otel-collector-conf
+data:
+  otel-collector-config: |
+    extensions:
+      basicauth/grafana_cloud:
+        # https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/extension/basicauthextension
+        client_auth:
+          username: "<GRAFANA_PROJECT_ID>"
+          password: "<GRAFANA_TOKEN>"
+      zpages: {}
+    connectors:
+      grafanacloud:
+        # https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/connector/grafanacloudconnector
+        host_identifiers: ["host.name"]
+    receivers:
+      otlp:
+        protocols:
+          grpc:
+            endpoint: ${env:MY_POD_IP}:4317
+          http:
+            endpoint: ${env:MY_POD_IP}:4318
+    processors:
+      batch:
+      memory_limiter:
+        # 80% of maximum memory up to 2G
+        limit_mib: 1500
+        # 25% of limit up to 2G
+        spike_limit_mib: 512
+        check_interval: 5s
+      resourcedetection:
+        # Enriches telemetry data with resource information from the host
+        # https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/processor/resourcedetectionprocessor
+        detectors: ["env", "system"]
+        override: false
+      transform/drop_unneeded_resource_attributes:
+        # https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/processor/transformprocessor
+        error_mode: ignore
+        trace_statements:
+          - context: resource
+            statements:
+              - delete_key(attributes, "k8s.pod.start_time")
+              - delete_key(attributes, "os.description")
+              - delete_key(attributes, "os.type")
+              - delete_key(attributes, "process.command_args")
+              - delete_key(attributes, "process.executable.path")
+              - delete_key(attributes, "process.pid")
+              - delete_key(attributes, "process.runtime.description")
+              - delete_key(attributes, "process.runtime.name")
+              - delete_key(attributes, "process.runtime.version")
+        metric_statements:
+          - context: resource
+            statements:
+              - delete_key(attributes, "k8s.pod.start_time")
+              - delete_key(attributes, "os.description")
+              - delete_key(attributes, "os.type")
+              - delete_key(attributes, "process.command_args")
+              - delete_key(attributes, "process.executable.path")
+              - delete_key(attributes, "process.pid")
+              - delete_key(attributes, "process.runtime.description")
+              - delete_key(attributes, "process.runtime.name")
+              - delete_key(attributes, "process.runtime.version")
+        log_statements:
+          - context: resource
+            statements:
+              - delete_key(attributes, "k8s.pod.start_time")
+              - delete_key(attributes, "os.description")
+              - delete_key(attributes, "os.type")
+              - delete_key(attributes, "process.command_args")
+              - delete_key(attributes, "process.executable.path")
+              - delete_key(attributes, "process.pid")
+              - delete_key(attributes, "process.runtime.description")
+              - delete_key(attributes, "process.runtime.name")
+              - delete_key(attributes, "process.runtime.version")
+      transform/add_resource_attributes_as_metric_attributes:
+        # https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/processor/transformprocessor
+        error_mode: ignore
+        metric_statements:
+          - context: datapoint
+            statements:
+              - set(attributes["deployment.environment"], resource.attributes["deployment.environment"])
+              - set(attributes["service.version"], resource.attributes["service.version"])
+    exporters:
+      otlphttp/grafana_cloud:
+        # https://github.com/open-telemetry/opentelemetry-collector/tree/main/exporter/otlpexporter
+        endpoint: "https://otlp-gateway-prod-eu-west-2.grafana.net/otlp"
+        auth:
+          authenticator: basicauth/grafana_cloud
+        tls:
+          ca_file: /etc/ssl/certs/ca-certificates.crt
+    service:
+      extensions: ["zpages","basicauth/grafana_cloud"]
+      pipelines:
+        traces:
+          receivers: [otlp]
+          processors: [resourcedetection, transform/drop_unneeded_resource_attributes, memory_limiter, batch]
+          exporters: [otlphttp/grafana_cloud, grafanacloud]
+        metrics:
+          receivers: [otlp]
+          processors: [resourcedetection, transform/drop_unneeded_resource_attributes, transform/add_resource_attributes_as_metric_attributes, batch]
+          exporters: [otlphttp/grafana_cloud]
+        metrics/grafanacloud:
+          receivers: [grafanacloud]
+          processors: [batch]
+          exporters: [otlphttp/grafana_cloud]
+        logs:
+          receivers: [otlp]
+          processors: [resourcedetection, transform/drop_unneeded_resource_attributes, batch]
+          exporters: [otlphttp/grafana_cloud]
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: otel-collector
+  labels:
+    app: opentelemetry
+    component: otel-collector
+spec:
+  ports:
+    - name: otlp-grpc # Default endpoint for OpenTelemetry gRPC receiver.
+      port: 4317
+      protocol: TCP
+      targetPort: 4317
+    - name: otlp-http # Default endpoint for OpenTelemetry HTTP receiver.
+      port: 4318
+      protocol: TCP
+      targetPort: 4318
+    - name: metrics # Default endpoint for querying metrics.
+      port: 8888
+  selector:
+    component: otel-collector
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: otel-collector
+  labels:
+    app: opentelemetry
+    component: otel-collector
+spec:
+  selector:
+    matchLabels:
+      app: opentelemetry
+      component: otel-collector
+  minReadySeconds: 5
+  progressDeadlineSeconds: 120
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: opentelemetry
+        component: otel-collector
+    spec:
+      containers:
+        - command:
+            - "/otelcol-contrib"
+            - "--config=/conf/otel-collector-config.yaml"
+          image: otel/opentelemetry-collector-contrib:0.112.0
+          name: otel-collector
+          resources:
+            limits:
+              cpu: 1000m
+              memory: 2Gi
+            requests:
+              cpu: 200m
+              memory: 400Mi
+          ports:
+            - containerPort: 55679 # Default endpoint for ZPages.
+            - containerPort: 4317 # Default endpoint for OpenTelemetry receiver.
+            - containerPort: 14250 # Default endpoint for Jaeger gRPC receiver.
+            - containerPort: 14268 # Default endpoint for Jaeger HTTP receiver.
+            - containerPort: 9411 # Default endpoint for Zipkin receiver.
+            - containerPort: 8888  # Default endpoint for querying metrics.
+          env:
+            - name: MY_POD_IP
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: status.podIP
+            - name: GOMEMLIMIT
+              value: 1600MiB
+          volumeMounts:
+            - name: otel-collector-config-vol
+              mountPath: /conf
+      volumes:
+        - configMap:
+            name: otel-collector-conf
+            items:
+              - key: otel-collector-config
+                path: otel-collector-config.yaml
+          name: otel-collector-config-vol

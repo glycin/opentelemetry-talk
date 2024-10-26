@@ -43,5 +43,18 @@ tasks {
 
     bootBuildImage {
         imageName.set("europe-west4-docker.pkg.dev/operationalexcellence-439615/operational-excellence/persistence-service:$version")
+
+        // Add the OpenTelemetry build pack to include the Java agent.
+        // Unfortunately, if we just want to add 1 build pack, we have to specify them all...
+        buildpacks.addAll(
+            "paketo-buildpacks/ca-certificates",
+            "paketo-buildpacks/bellsoft-liberica",
+            "paketo-buildpacks/syft",
+            "paketo-buildpacks/executable-jar",
+            "paketo-buildpacks/dist-zip",
+            "paketo-buildpacks/spring-boot",
+            "gcr.io/paketo-buildpacks/opentelemetry",
+        )
+        environment.put("BP_OPENTELEMETRY_ENABLED", "true")
     }
 }
