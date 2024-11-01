@@ -1,8 +1,8 @@
-package com.glycin.kotlinbackend.model
+package com.glycin.persistenceservice.model
 
-import java.util.*
+import java.util.UUID
 
-data class Session(
+data class PlayerSession(
     val playerId: UUID,
     val playerName: String,
     val sessionId: UUID,

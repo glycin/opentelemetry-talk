@@ -11,16 +11,14 @@ class PlayerService(
     private val playerRepository: PlayerRepository,
 ) {
 
-    fun createPlayer(id: UUID, name: String): Player {
-        val player = Player(id, name, mutableListOf())
-        playerRepository.save(player)
-        return player
+    fun createPlayer(name: String): Player? {
+        val player = Player(UUID.randomUUID(), name, mutableListOf())
+        return if (playerRepository.create(player)) player else null
     }
 
     fun getPlayer(id: UUID): Player = playerRepository.getPlayer(id)
 
-    fun addActionToPlayer(id: UUID, actionTime: Long) {
-        val player = playerRepository.getPlayer(id)
-        player.actions.add(Action(actionTime))
+    fun addActionToPlayer(player: Player, actionTime: Long) {
+        playerRepository.updatePlayerAction(player, Action(actionTime))
     }
 }
