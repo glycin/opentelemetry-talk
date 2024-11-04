@@ -1,6 +1,7 @@
 package com.glycin.kotlinbackend.connector
 
 import com.glycin.kotlinbackend.controller.PLAYER_ID_HEADER
+import com.glycin.kotlinbackend.model.ActionType
 import com.glycin.kotlinbackend.model.Session
 import com.glycin.kotlinbackend.model.rest.AddActionResponse
 import org.springframework.cloud.openfeign.FeignClient
@@ -27,5 +28,6 @@ interface PersistenceServiceConnector {
     fun postAction(
         @RequestHeader(PLAYER_ID_HEADER) playerId: UUID,
         @RequestParam actionTime: Long,
+        @RequestParam actionType: ActionType,
     ): AddActionResponse
 }

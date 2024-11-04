@@ -2,6 +2,7 @@ package com.glycin.persistenceservice.repository
 
 import com.glycin.persistenceservice.controllers.PLAYER_ID_SPAN_ATTRIBUTE
 import com.glycin.persistenceservice.model.Action
+import com.glycin.persistenceservice.model.ActionType
 import com.glycin.persistenceservice.model.Player
 import io.opentelemetry.api.trace.Span
 import io.opentelemetry.instrumentation.annotations.WithSpan
@@ -37,7 +38,13 @@ class PlayerRepository {
     @WithSpan
     fun updatePlayerAction(player: Player, action: Action) {
         Span.current().setAttribute(PLAYER_ID_SPAN_ATTRIBUTE, player.id.toString())
-        players.getValue(player.id).actions.add(action)
+        val p = players.getValue(player.id)
+        when(action.type) {
+            ActionType.TAP -> {} // Do nothing
+            ActionType.SCORE -> p.score++
+            ActionType.DEATH -> p.score = 0
+        }
+        p.actions.add(action)
     }
 
     fun getPlayer(id: UUID): Player = players.getValue(id)

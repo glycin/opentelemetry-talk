@@ -1,9 +1,6 @@
 package com.glycin.persistenceservice.controllers
 
-import com.glycin.persistenceservice.model.AddActionResponse
-import com.glycin.persistenceservice.model.Player
-import com.glycin.persistenceservice.model.PlayerSession
-import com.glycin.persistenceservice.model.Session
+import com.glycin.persistenceservice.model.*
 import com.glycin.persistenceservice.service.PlayerService
 import com.glycin.persistenceservice.service.SessionService
 import io.opentelemetry.api.trace.Span
@@ -75,6 +72,7 @@ class TheOneController(
     fun addAction(
         @RequestHeader(PLAYER_ID_HEADER) playerId: UUID,
         @RequestParam actionTime: Long,
+        @RequestParam actionType: ActionType,
     ): ResponseEntity<AddActionResponse> {
         val player = playerService.getPlayer(playerId).alsoAddToSpan()
         playerService.addActionToPlayer(player, actionTime)
@@ -82,6 +80,7 @@ class TheOneController(
             playerId = player.id,
             playerName = player.name,
             actionTime = actionTime,
+            actionType = actionType.name,
         ))
     }
 

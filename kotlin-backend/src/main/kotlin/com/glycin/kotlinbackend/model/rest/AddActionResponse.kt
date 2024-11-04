@@ -6,4 +6,5 @@ data class AddActionResponse(
     val playerId: UUID,
     val playerName: String,
     val actionTime: Long,
+    val actionType: String,
 )

@@ -7,4 +7,6 @@ data class Action(
 
 enum class ActionType {
     TAP,
+    SCORE,
+    DEATH,
 }

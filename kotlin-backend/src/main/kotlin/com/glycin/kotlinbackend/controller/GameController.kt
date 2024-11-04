@@ -1,6 +1,7 @@
 package com.glycin.kotlinbackend.controller
 
 import com.glycin.kotlinbackend.connector.PersistenceServiceConnector
+import com.glycin.kotlinbackend.model.ActionType
 import com.glycin.kotlinbackend.model.Session
 import com.glycin.kotlinbackend.model.rest.RestActionBody
 import io.opentelemetry.api.trace.Span
@@ -15,6 +16,7 @@ const val PLAYER_ID_SPAN_ATTRIBUTE = "player.id"
 const val PLAYER_NAME_SPAN_ATTRIBUTE = "player.name"
 
 @RestController
+@CrossOrigin(origins = ["http://localhost:9000"])
 class GameController(
     private val persistenceConnector: PersistenceServiceConnector,
 ) {
@@ -38,12 +40,38 @@ class GameController(
     }
 
     @WithSpan
-    @PostMapping("/player/action")
-    fun submitAction(
+    @PostMapping("/player/tap")
+    fun submitTap(
         @RequestHeader(PLAYER_ID_HEADER) playerId: UUID,
         @RequestBody action: RestActionBody,
     ): ResponseEntity<Unit> {
-        persistenceConnector.postAction(playerId, action.timestamp).also { response ->
+        persistenceConnector.postAction(playerId, action.timestamp, ActionType.TAP).also { response ->
+            addToSpan(playerId = response.playerId, playerName = response.playerName)
+        }
+        return ResponseEntity.noContent().build()
+    }
+
+
+    @WithSpan
+    @PostMapping("/player/score")
+    fun submitScore(
+        @RequestHeader(PLAYER_ID_HEADER) playerId: UUID,
+        @RequestBody action: RestActionBody,
+    ): ResponseEntity<Unit> {
+        persistenceConnector.postAction(playerId, action.timestamp, ActionType.SCORE).also { response ->
+            addToSpan(playerId = response.playerId, playerName = response.playerName)
+        }
+        return ResponseEntity.noContent().build()
+    }
+
+
+    @WithSpan
+    @PostMapping("/player/death")
+    fun submitDeath(
+        @RequestHeader(PLAYER_ID_HEADER) playerId: UUID,
+        @RequestBody action: RestActionBody,
+    ): ResponseEntity<Unit> {
+        persistenceConnector.postAction(playerId, action.timestamp, ActionType.DEATH).also { response ->
             addToSpan(playerId = response.playerId, playerName = response.playerName)
         }
         return ResponseEntity.noContent().build()

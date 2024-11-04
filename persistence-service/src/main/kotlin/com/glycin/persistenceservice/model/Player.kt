@@ -6,4 +6,5 @@ data class Player(
     val id: UUID,
     val name: String,
     val actions: MutableList<Action>,
+    var score: Int = 0,
 )
