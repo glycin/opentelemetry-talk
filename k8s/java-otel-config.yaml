@@ -10,3 +10,4 @@ data:
   OTEL_LOGS_EXPORTER: "otlp" # Export logs to the OpenTelemetry Collector
   OTEL_RESOURCE_PROVIDERS_GCP_ENABLED: "true" # Enable some Google Cloud-specific resource info
   OTEL_TRACES_SAMPLER: "always_on" # Sample ALL THE THINGS!!!
+  OTEL_INSTRUMENTATION_MICROMETER_ENABLED: "true" # Enable Micrometer instrumentation

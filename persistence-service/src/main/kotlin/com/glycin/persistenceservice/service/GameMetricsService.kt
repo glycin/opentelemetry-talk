@@ -1,18 +1,19 @@
 package com.glycin.persistenceservice.service
 
+import com.glycin.persistenceservice.model.ActionType
 import com.glycin.persistenceservice.repository.SessionRepository
-import io.micrometer.core.instrument.MeterRegistry
+import io.micrometer.core.instrument.Metrics
 import jakarta.annotation.PostConstruct
 import org.springframework.stereotype.Service
 
 @Service
 class GameMetricsService(
     private val sessionRepository: SessionRepository,
-    private val meterRegistry: MeterRegistry,
 ) {
-
     @PostConstruct
     fun init() {
+        val meterRegistry = Metrics.globalRegistry
+
         meterRegistry.gauge("traceybird.score.highest", this) {
             it.sessionRepository.getLatestSession()?.highScore?.get()?.toDouble() ?: 0.0
         }
@@ -23,8 +24,13 @@ class GameMetricsService(
             var scores = 0
             var deaths = 0
             it.sessionRepository.getLatestSession()?.players?.forEach { player ->
-                scores += player.score
-                deaths += player.deaths
+                player.actions.forEach { action ->
+                    when (action.type) {
+                        ActionType.TAP -> {}
+                        ActionType.SCORE -> scores++
+                        ActionType.DEATH -> deaths++
+                    }
+                }
             }
             when {
                 scores == 0 -> 0.0
