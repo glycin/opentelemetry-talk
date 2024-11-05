@@ -5,6 +5,8 @@ import com.glycin.persistenceservice.service.PlayerService
 import com.glycin.persistenceservice.service.SessionService
 import io.opentelemetry.api.trace.Span
 import io.opentelemetry.instrumentation.annotations.WithSpan
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -21,6 +23,7 @@ class TheOneController(
     private val sessionService: SessionService,
     private val playerService: PlayerService,
 ) {
+    private val logger: Logger = LoggerFactory.getLogger(TheOneController::class.java)
 
     @PostMapping("/session/init") // TODO admin endpoint
     fun initNewSession(): ResponseEntity<Session> {
@@ -39,6 +42,7 @@ class TheOneController(
         val player = playerService.createPlayer(name = name)?.alsoAddToSpan()
             ?: return ResponseEntity.status(HttpStatus.CONFLICT).build()
 
+        logger.info("New player spawned: '$name'")
         return sessionService.getActiveSession()?.let {
             sessionService.addPlayerToSession(player, it.id)
             ResponseEntity.ok(it.toPlayerSessionDTO(player))
@@ -75,6 +79,13 @@ class TheOneController(
         @RequestParam actionType: ActionType,
     ): ResponseEntity<AddActionResponse> {
         val player = playerService.getPlayer(playerId).alsoAddToSpan()
+
+        when (actionType) {
+            ActionType.TAP ->  logger.info("Player '${player.name}' successfully tapped their screen, well done!")
+            ActionType.SCORE -> logger.info("Player '${player.name}' was actually able to dodge a flaming server, point scored!")
+            ActionType.DEATH -> logger.info("Player '${player.name}' perished in the flaming servers!!")
+        }
+
         playerService.addActionToPlayer(player, actionTime)
         return ResponseEntity.accepted().body(AddActionResponse(
             playerId = player.id,
