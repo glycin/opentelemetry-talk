@@ -25,7 +25,7 @@ class TheOneController(
 ) {
     private val logger: Logger = LoggerFactory.getLogger(TheOneController::class.java)
 
-    @PostMapping("/session/init") // TODO admin endpoint
+    @PostMapping("/session/init")
     fun initNewSession(): ResponseEntity<Session> {
         return ResponseEntity.ok(sessionService.createSession())
     }

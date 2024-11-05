@@ -26,7 +26,7 @@ app.UsePathBase("/dotnet-backend");
 app.MapGet("/init", async(HttpClient httpClient) =>
 {
     var requestUrl = persistenceServiceBaseUrl + "/session/init";
-    var response = await httpClient.GetAsync(requestUrl);
+    var response = await httpClient.PostAsync(requestUrl, null);
     if (response.IsSuccessStatusCode)
     {
         var content = await response.Content.ReadAsStringAsync();
