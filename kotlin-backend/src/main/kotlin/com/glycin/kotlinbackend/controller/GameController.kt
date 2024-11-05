@@ -81,7 +81,7 @@ class GameController(
         @RequestBody action: RestActionBody,
     ): ResponseEntity<Unit> {
         persistenceConnector.postAction(playerId, action.timestamp, ActionType.DEATH).also { response ->
-            logger.info("Player '${response.playerName}' unfortunately perished in the flaming servers!")
+            logger.error("Player '${response.playerName}' unfortunately perished in the flaming servers!")
             addToSpan(playerId = response.playerId, playerName = response.playerName)
         }
         return ResponseEntity.noContent().build()
