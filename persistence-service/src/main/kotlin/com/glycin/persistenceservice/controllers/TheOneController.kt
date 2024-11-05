@@ -94,7 +94,8 @@ class TheOneController(
             ActionType.DEATH -> logger.info("Player '${player.name}' perished in the flaming servers!!")
         }
 
-        playerService.addActionToPlayer(player, actionTime)
+        playerService.addActionToPlayer(player, actionType, actionTime)
+        sessionService.processPlayerAction(player, actionType)
         return ResponseEntity.accepted().body(AddActionResponse(
             playerId = player.id,
             playerName = player.name,

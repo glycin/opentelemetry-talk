@@ -39,13 +39,15 @@ class PlayerRepository {
     @WithSpan
     fun updatePlayerAction(player: Player, action: Action) {
         Span.current().setAttribute(PLAYER_ID_SPAN_ATTRIBUTE, player.id.toString())
-        val p = players.getValue(player.id)
         when(action.type) {
             ActionType.TAP -> {} // Do nothing
-            ActionType.SCORE -> p.score++
-            ActionType.DEATH -> p.score = 0
+            ActionType.SCORE -> player.score++
+            ActionType.DEATH -> {
+                player.score = 0
+                player.deaths++
+            }
         }
-        p.actions.add(action)
+        player.actions.add(action)
     }
 
     fun getPlayer(id: UUID): Player = players.getValue(id)
