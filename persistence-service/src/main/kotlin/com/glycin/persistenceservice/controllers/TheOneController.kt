@@ -49,6 +49,13 @@ class TheOneController(
         } ?: ResponseEntity.notFound().build()
     }
 
+    @GetMapping("/session/latest")
+    fun getLatestSession(): ResponseEntity<Session> {
+        return sessionService.getActiveSession()
+            ?.let { ResponseEntity.ok(it) }
+            ?: ResponseEntity.notFound().build()
+    }
+
     @WithSpan
     @GetMapping("/session/getLatestState")
     fun getLatestState(

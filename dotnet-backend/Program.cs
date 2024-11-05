@@ -26,14 +26,17 @@ app.UsePathBase("/dotnet-backend");
 app.MapGet("/init", async(HttpClient httpClient) =>
 {
     var requestUrl = persistenceServiceBaseUrl + "/session/init";
+    app.Logger.LogInformation("Creating new super cool Tracey Bird session");
     var response = await httpClient.PostAsync(requestUrl, null);
     if (response.IsSuccessStatusCode)
     {
         var content = await response.Content.ReadAsStringAsync();
         var session = JsonSerializer.Deserialize<Session>(content);
+        app.Logger.LogInformation($"Session {session?.id} created");
         return Results.Ok(session);
     } else
     {
+        app.Logger.LogError($"Could not create session...");
         return Results.StatusCode((int)response.StatusCode);
     }
 })
@@ -42,15 +45,20 @@ app.MapGet("/init", async(HttpClient httpClient) =>
 
 app.MapGet("/latestState", async (HttpClient httpClient) =>
 {
-    var requestUrl = persistenceServiceBaseUrl + "/session/getLatestState";
+    var requestUrl = persistenceServiceBaseUrl + "/session/latest";
     var response = await httpClient.GetAsync(requestUrl);
+    app.Logger.LogInformation("Getting latest state...");
+
     if (response.IsSuccessStatusCode)
     {
         var content = await response.Content.ReadAsStringAsync();
-        return Results.Ok(content);
+        var session = JsonSerializer.Deserialize<Session>(content);
+        app.Logger.LogInformation($"Returning latest state with {session?.players.Count} players");
+        return Results.Ok(session);
     }
     else
     {
+        app.Logger.LogError($"Couldn't get latest state because {response.StatusCode}");
         return Results.StatusCode((int)response.StatusCode);
     }
 })
