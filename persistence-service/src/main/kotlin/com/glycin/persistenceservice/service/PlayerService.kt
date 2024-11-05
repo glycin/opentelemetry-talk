@@ -11,9 +11,9 @@ class PlayerService(
     private val playerRepository: PlayerRepository,
 ) {
 
-    fun createPlayer(name: String): Player? {
-        val player = Player(UUID.randomUUID(), name, mutableListOf())
-        return if (playerRepository.create(player)) player else null
+    fun createPlayer(id: UUID, name: String): Player? {
+        val player = Player(id, name, mutableListOf())
+        return playerRepository.create(player)
     }
 
     fun getPlayer(id: UUID): Player = playerRepository.getPlayer(id)

@@ -35,10 +35,11 @@ class GameController(
     @WithSpan
     @PostMapping("/create/player")
     fun createPlayer(
+        @RequestHeader(PLAYER_ID_HEADER, required = false) playerId: UUID?,
         @RequestParam name: String,
     ): ResponseEntity<Any> {
         return try {
-            persistenceConnector.createPlayer(name)
+            persistenceConnector.createPlayer(playerId ?: UUID.randomUUID(), name)
         } catch (e: FeignException.Conflict) {
             logger.warn("Attempting to create already existing player: '$name'")
             null

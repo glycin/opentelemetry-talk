@@ -21,15 +21,16 @@ class PlayerRepository {
     private val playerCreationLock = ReentrantLock()
 
     @WithSpan
-    fun create(player: Player): Boolean {
+    fun create(player: Player): Player? {
         Span.current().setAttribute(PLAYER_ID_SPAN_ATTRIBUTE, player.id.toString())
         playerCreationLock.lock()
-        try {
+        return try {
             if (playerNames.add(player.name)) {
                 players[player.id] = player
-                return true
+                player
+            } else {
+                players[player.id]?.takeIf { it.name == player.name } // Allow reregistration of the same player if the ID matches
             }
-            return false
         } finally {
             playerCreationLock.unlock()
         }

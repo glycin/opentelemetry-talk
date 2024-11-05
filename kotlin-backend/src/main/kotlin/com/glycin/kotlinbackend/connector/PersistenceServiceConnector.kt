@@ -21,6 +21,7 @@ interface PersistenceServiceConnector {
 
     @RequestMapping(method = [RequestMethod.GET], value = ["/player/create"])
     fun createPlayer(
+        @RequestParam id: UUID,
         @RequestParam name: String,
     ): Session?
 
