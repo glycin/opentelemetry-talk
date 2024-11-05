@@ -33,13 +33,14 @@ class TheOneController(
     @WithSpan
     @GetMapping("/player/create")
     fun createPlayer(
+        @RequestParam id: UUID,
         @RequestParam name: String,
     ): ResponseEntity<PlayerSession> {
         if (!PLAYER_NAME_REGEX.matches(name)) {
             return ResponseEntity.badRequest().build()
         }
 
-        val player = playerService.createPlayer(name = name)?.alsoAddToSpan()
+        val player = playerService.createPlayer(id = id, name = name)?.alsoAddToSpan()
             ?: return ResponseEntity.status(HttpStatus.CONFLICT).build()
 
         logger.info("New player spawned: '$name'")

@@ -17,3 +17,7 @@ docker push europe-west4-docker.pkg.dev/operationalexcellence-439615/operational
 
 cd ..
 kubectl apply -f k8s
+
+kubectl rollout restart deployment/persistence-service
+kubectl rollout restart deployment/kotlin-backend
+kubectl rollout restart deployment/dotnet-backend
