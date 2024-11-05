@@ -4,7 +4,7 @@ metadata:
   name: traceybird-ingress
   annotations:
     kubernetes.io/ingress.global-static-ip-name: "traceybird"
-#    networking.gke.io/managed-certificates: "traceybird"   # TODO activate
+    networking.gke.io/managed-certificates: "traceybird"
 spec:
   defaultBackend:
     service:
