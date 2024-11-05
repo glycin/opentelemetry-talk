@@ -10,7 +10,7 @@ builder.Services.AddHttpClient();
 builder.Services.AddHealthChecks();
 
 var app = builder.Build();
-var persistenceServiceBaseUrl = System.Environment.GetEnvironmentVariable("ENV_PERSISTENCE_URL") ?? "http://localhost:1337";
+var persistenceServiceBaseUrl = System.Environment.GetEnvironmentVariable("ENV_PERSISTENCE_URL") ?? "http://localhost:1337/persistence-service";
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -18,6 +18,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UsePathBase("/dotnet-backend");
 
 //app.UseHttpsRedirection();
 

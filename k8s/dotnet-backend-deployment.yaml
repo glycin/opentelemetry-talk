@@ -30,13 +30,13 @@ spec:
               memory: "1Gi"
           readinessProbe:
             httpGet:
-              path: /health
+              path: /dotnet-backend/health
               port: http
             initialDelaySeconds: 20
             failureThreshold: 5
           livenessProbe:
             httpGet:
-              path: /health
+              path: /dotnet-backend/health
               port: http
             initialDelaySeconds: 20
             failureThreshold: 5
@@ -45,7 +45,7 @@ spec:
               containerPort: 8080
           env:
             - name: ENV_PERSISTENCE_URL
-              value: "http://persistence-service.default.svc.cluster.local:1337"
+              value: "http://persistence-service.default.svc.cluster.local:1337/persistence-service"
           envFrom:
             - configMapRef:
                 name: dotnet-otel-config

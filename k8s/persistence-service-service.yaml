@@ -5,7 +5,7 @@ metadata:
     app: persistence-service
   name: persistence-service
 spec:
-  type: LoadBalancer
+  type: NodePort
   selector:
     app: persistence-service
   ports:

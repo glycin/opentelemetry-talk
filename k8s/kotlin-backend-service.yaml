@@ -5,7 +5,7 @@ metadata:
     app: kotlin-backend
   name: kotlin-backend
 spec:
-  type: LoadBalancer
+  type: NodePort
   selector:
     app: kotlin-backend
   ports:

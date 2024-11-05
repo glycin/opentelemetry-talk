@@ -30,13 +30,13 @@ spec:
               memory: "1Gi"
           readinessProbe:
             httpGet:
-              path: /actuator/health/readiness
+              path: /persistence-service/actuator/health/readiness
               port: http
             initialDelaySeconds: 20
             failureThreshold: 5
           livenessProbe:
             httpGet:
-              path: /actuator/health/liveness
+              path: /persistence-service/actuator/health/liveness
               port: http
             initialDelaySeconds: 20
             failureThreshold: 5

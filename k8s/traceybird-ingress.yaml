@@ -1,0 +1,38 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: traceybird-ingress
+  annotations:
+    kubernetes.io/ingress.global-static-ip-name: "traceybird"
+#    networking.gke.io/managed-certificates: "traceybird"   # TODO activate
+spec:
+  defaultBackend:
+    service:
+      name: tracey-bird
+      port:
+        number: 80
+  rules:
+    - host: traceybird.com
+      http:
+        paths:
+          - path: "/kotlin-backend"
+            pathType: Prefix
+            backend:
+              service:
+                name: kotlin-backend
+                port:
+                  number: 9001
+          - path: "/dotnet-backend"
+            pathType: Prefix
+            backend:
+              service:
+                name: dotnet-backend
+                port:
+                  number: 8080
+          - path: "/persistence-service"
+            pathType: Prefix
+            backend:
+              service:
+                name: persistence-service
+                port:
+                  number: 1337

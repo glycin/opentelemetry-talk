@@ -30,13 +30,13 @@ spec:
               memory: "1Gi"
           readinessProbe:
             httpGet:
-              path: /actuator/health/readiness
+              path: /kotlin-backend/actuator/health/readiness
               port: http
             initialDelaySeconds: 20
             failureThreshold: 5
           livenessProbe:
             httpGet:
-              path: /actuator/health/liveness
+              path: /kotlin-backend/actuator/health/liveness
               port: http
             initialDelaySeconds: 20
             failureThreshold: 5
@@ -50,7 +50,7 @@ spec:
             - name: JAVA_TOOL_OPTIONS
               value: "-Xss512k" # Set thread stack size to 512k. Defaults to 1M, but in a typical Spring Boot application, less is needed.
             - name: ENV_PERSISTENCE_URL
-              value: "http://persistence-service.default.svc.cluster.local:1337"
+              value: "http://persistence-service.default.svc.cluster.local:1337/persistence-service"
           envFrom:
             - configMapRef:
                 name: java-otel-config

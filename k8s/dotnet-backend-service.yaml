@@ -5,7 +5,7 @@ metadata:
     app: dotnet-backend
   name: dotnet-backend
 spec:
-  type: LoadBalancer
+  type: NodePort
   selector:
     app: dotnet-backend
   ports:
