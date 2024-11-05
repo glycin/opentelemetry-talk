@@ -19,7 +19,6 @@ const val PLAYER_ID_SPAN_ATTRIBUTE = "player.id"
 const val PLAYER_NAME_SPAN_ATTRIBUTE = "player.name"
 
 @RestController
-@CrossOrigin(origins = ["http://localhost:9000"])
 class GameController(
     private val persistenceConnector: PersistenceServiceConnector,
 ) {
