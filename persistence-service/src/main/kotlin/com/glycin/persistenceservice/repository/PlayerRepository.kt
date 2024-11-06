@@ -43,6 +43,9 @@ class PlayerRepository {
             ActionType.TAP -> {} // Do nothing
             ActionType.SCORE -> player.score++
             ActionType.DEATH -> {
+                if(player.score > player.highScore) {
+                    player.highScore = player.score
+                }
                 player.score = 0
                 player.deaths++
             }

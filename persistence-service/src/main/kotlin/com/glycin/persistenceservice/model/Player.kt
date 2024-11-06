@@ -8,4 +8,5 @@ data class Player(
     val actions: MutableList<Action>,
     var score: Int = 0,
     var deaths: Int = 0,
+    var highScore: Int = 0,
 )
