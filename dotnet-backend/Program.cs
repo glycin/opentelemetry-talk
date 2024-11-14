@@ -54,8 +54,8 @@ app.MapGet("/latestState", async (HttpClient httpClient) =>
         var content = await response.Content.ReadAsStringAsync();
         var session = JsonSerializer.Deserialize<Session>(content);
         app.Logger.LogInformation($"Returning latest state with {session?.players.Count} players");
-        var highscores = session.players.OrderBy(p => p.highScore).Take(5).Select(p => new HighscoreItem(p.highScore, p.name, p.id)).ToList();
-        var deathscores = session.players.OrderBy(p => p.deaths).Take(5).Select(p => new HighscoreItem(p.deaths, p.name, p.id)).ToList();
+        var highscores = session.players.OrderByDescending(p => p.highScore).Take(5).Select(p => new HighscoreItem(p.highScore, p.name, p.id)).ToList();
+        var deathscores = session.players.OrderByDescending(p => p.deaths).Take(5).Select(p => new HighscoreItem(p.deaths, p.name, p.id)).ToList();
         return Results.Ok(new SessionStateUpdate(session.id, session.players, highscores, deathscores));
     }
     else
