@@ -11,3 +11,4 @@ data:
   OTEL_RESOURCE_PROVIDERS_GCP_ENABLED: "true" # Enable some Google Cloud-specific resource info
   OTEL_TRACES_SAMPLER: "always_on" # Sample ALL THE THINGS!!!
   OTEL_INSTRUMENTATION_MICROMETER_ENABLED: "true" # Enable Micrometer instrumentation
+  OTEL_METRIC_EXPORT_INTERVAL: "5000" # Increase the metrics export interval, default: 60000
