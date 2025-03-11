@@ -46,7 +46,7 @@ class TheTwoController(
 
         return sessionService.getActiveSession()?.let {
             sessionService.addRockerToJam(rocker, it.id)
-            logger.info("A new rocker appeared!'$name' joined the jam")
+            logger.info("A new rocker appeared! '$name' joined the jam")
             ResponseEntity.ok(it.toRockerSessionDto(rocker))
         } ?: ResponseEntity.notFound().build()
     }
@@ -54,7 +54,10 @@ class TheTwoController(
     @GetMapping("/jam/latest")
     fun getLatestSession(): ResponseEntity<JamSession> {
         return sessionService.getActiveSession()
-            ?.let { ResponseEntity.ok(it) }
+            ?.let { update ->
+                logger.info("Return jam session with ${update.rockers.size} rockers and ${update.rockers.flatMap { it.chordsPlayed }.size} chords")
+                ResponseEntity.ok(update)
+            }
             ?: ResponseEntity.notFound().build()
     }
 

@@ -1,3 +1,10 @@
-﻿namespace dotnet_backend.Model;
+﻿using System.Text.Json.Serialization;
 
-public record Strum(long timeStamp, PowerChord chord);
+namespace dotnet_backend.Model;
+
+public class Strum {
+    public long timeStamp { get; set; }
+
+    [JsonConverter(typeof(JsonStringEnumConverter))]
+    public PowerChord chord {  get; set; }
+}
