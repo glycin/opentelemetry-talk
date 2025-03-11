@@ -1,7 +1,7 @@
-package com.glycin.persistenceservice.logrythm.repository
+package com.glycin.persistenceservice.logrhythm.repository
 
-import com.glycin.persistenceservice.logrythm.model.JamSession
-import com.glycin.persistenceservice.logrythm.model.Rocker
+import com.glycin.persistenceservice.logrhythm.model.JamSession
+import com.glycin.persistenceservice.logrhythm.model.Rocker
 import org.springframework.stereotype.Repository
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap

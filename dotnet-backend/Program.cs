@@ -70,7 +70,7 @@ app.MapGet("/latestState", async (HttpClient httpClient) =>
 app.MapGet("/jam/init", async (HttpClient httpClient) =>
 {
     var requestUrl = persistenceServiceBaseUrl + "/jam/init";
-    app.Logger.LogInformation("Creating new super cool Tracey Bird session");
+    app.Logger.LogInformation("Creating new super cool jam session");
     var response = await httpClient.PostAsync(requestUrl, null);
     if (response.IsSuccessStatusCode)
     {

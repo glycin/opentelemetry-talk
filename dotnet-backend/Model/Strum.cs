@@ -1,3 +1,3 @@
 ﻿namespace dotnet_backend.Model;
 
-public record Strum(long timeStamp, string chord);
+public record Strum(long timeStamp, PowerChord chord);

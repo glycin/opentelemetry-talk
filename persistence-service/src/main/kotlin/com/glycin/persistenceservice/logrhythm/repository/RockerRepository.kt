@@ -1,8 +1,8 @@
-package com.glycin.persistenceservice.logrythm.repository
+package com.glycin.persistenceservice.logrhythm.repository
 
-import com.glycin.persistenceservice.controllers.PLAYER_ID_SPAN_ATTRIBUTE
-import com.glycin.persistenceservice.logrythm.model.Rocker
-import com.glycin.persistenceservice.logrythm.model.Strum
+import com.glycin.persistenceservice.logrhythm.controller.ROCKER_ID_SPAN_ATTRIBUTE
+import com.glycin.persistenceservice.logrhythm.model.Rocker
+import com.glycin.persistenceservice.logrhythm.model.Strum
 import io.opentelemetry.api.trace.Span
 import io.opentelemetry.instrumentation.annotations.WithSpan
 import org.springframework.stereotype.Repository
@@ -21,7 +21,7 @@ class RockerRepository {
 
     @WithSpan
     fun create(rocker: Rocker): Rocker? {
-        Span.current().setAttribute(PLAYER_ID_SPAN_ATTRIBUTE, rocker.id.toString())
+        Span.current().setAttribute(ROCKER_ID_SPAN_ATTRIBUTE, rocker.id.toString())
         rockerCreationLock.lock()
         return try {
             if (rockerNames.add(rocker.name)) {
@@ -37,7 +37,7 @@ class RockerRepository {
 
     @WithSpan
     fun updateRockerChord(rocker: Rocker, chord: Strum) {
-        Span.current().setAttribute(PLAYER_ID_SPAN_ATTRIBUTE, rocker.id.toString())
+        Span.current().setAttribute(ROCKER_ID_SPAN_ATTRIBUTE, rocker.id.toString())
         rocker.chordsPlayed.add(chord)
     }
 

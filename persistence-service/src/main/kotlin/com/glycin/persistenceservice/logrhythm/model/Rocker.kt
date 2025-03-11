@@ -1,4 +1,4 @@
-package com.glycin.persistenceservice.logrythm.model
+package com.glycin.persistenceservice.logrhythm.model
 
 import java.util.*
 

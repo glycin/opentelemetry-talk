@@ -19,12 +19,12 @@ data class Strum(
 )
 
 enum class PowerChord {
-    A_MINOR, //553
-    G, //331
-    E_MINOR, // XXX
-    F, // 664
-    D_MINOR,
-    C,
+    GUITAR,
+    HORNS,
+    EXPLOSION,
+    SKULL,
+    TIGER,
+    NOTE,
 }
 
 data class RockerSession(

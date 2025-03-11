@@ -33,18 +33,18 @@ interface PersistenceServiceConnector {
         @RequestParam actionType: ActionType,
     ): AddActionResponse
 
-    @RequestMapping(method = [RequestMethod.GET], value = ["/logrythm/jam/getLatestState"])
+    @RequestMapping(method = [RequestMethod.GET], value = ["/jam/getLatestState"])
     fun getLatestJamState(
         @RequestHeader(ROCKER_ID_HEADER) playerId: UUID,
     ): RockerSession
 
-    @RequestMapping(method = [RequestMethod.GET], value = ["/logrythm/rocker/create"])
+    @RequestMapping(method = [RequestMethod.GET], value = ["/rocker/create"])
     fun createRocker(
         @RequestParam id: UUID,
         @RequestParam name: String,
     ): RockerSession?
 
-    @RequestMapping(method = [RequestMethod.POST], value = ["/logrythm/rocker/strum"])
+    @RequestMapping(method = [RequestMethod.POST], value = ["/rocker/strum"])
     fun postStrum(
         @RequestHeader(ROCKER_ID_HEADER) rockerId: UUID,
         @RequestParam strumTime: Long,

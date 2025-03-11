@@ -1,12 +1,9 @@
-package com.glycin.persistenceservice.logrythm.services
+package com.glycin.persistenceservice.logrhythm.services
 
-import com.glycin.persistenceservice.logrythm.model.JamSession
-import com.glycin.persistenceservice.logrythm.model.PowerChord
-import com.glycin.persistenceservice.logrythm.model.Rocker
-import com.glycin.persistenceservice.logrythm.repository.JamSessionRepository
+import com.glycin.persistenceservice.logrhythm.model.JamSession
+import com.glycin.persistenceservice.logrhythm.model.Rocker
+import com.glycin.persistenceservice.logrhythm.repository.JamSessionRepository
 import jakarta.annotation.PostConstruct
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
@@ -15,8 +12,6 @@ import java.util.concurrent.ConcurrentHashMap
 class JamSessionService(
     private val repository: JamSessionRepository,
 ) {
-    private val logger: Logger = LoggerFactory.getLogger(JamSessionService::class.java)
-
     @PostConstruct
     fun init() {
         createSession()
@@ -34,10 +29,5 @@ class JamSessionService(
 
     fun addRockerToJam(rocker: Rocker, sessionId: UUID) {
         repository.addRocker(rocker, sessionId)
-    }
-
-    fun processRockerStrum(rocker: Rocker, chord: PowerChord) {
-        val session = getActiveSession() ?: return
-        //TODO: Do i need to do anything here?
     }
 }

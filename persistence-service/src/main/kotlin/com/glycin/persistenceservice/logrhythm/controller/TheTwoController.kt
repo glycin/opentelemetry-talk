@@ -1,8 +1,8 @@
-package com.glycin.persistenceservice.logrythm.controller
+package com.glycin.persistenceservice.logrhythm.controller
 
-import com.glycin.persistenceservice.logrythm.model.*
-import com.glycin.persistenceservice.logrythm.services.RockerService
-import com.glycin.persistenceservice.logrythm.services.JamSessionService
+import com.glycin.persistenceservice.logrhythm.model.*
+import com.glycin.persistenceservice.logrhythm.services.RockerService
+import com.glycin.persistenceservice.logrhythm.services.JamSessionService
 import io.opentelemetry.api.trace.Span
 import io.opentelemetry.instrumentation.annotations.WithSpan
 import org.slf4j.Logger
@@ -27,6 +27,7 @@ class TheTwoController(
 
     @PostMapping("/jam/init")
     fun initNewSession(): ResponseEntity<JamSession> {
+        logger.info("Creating new jam session!!!")
         return ResponseEntity.ok(sessionService.createSession())
     }
 
@@ -40,13 +41,13 @@ class TheTwoController(
             return ResponseEntity.badRequest().build()
         }
 
-        val maestro = rockerService.createRocker(id = id, name = name)?.alsoAddToSpan()
+        val rocker = rockerService.createRocker(id = id, name = name)?.alsoAddToSpan()
             ?: return ResponseEntity.status(HttpStatus.CONFLICT).build()
 
-        logger.info("New rocker joined the jam: '$name'")
         return sessionService.getActiveSession()?.let {
-            sessionService.addRockerToJam(maestro, it.id)
-            ResponseEntity.ok(it.toRockerSessionDto(maestro))
+            sessionService.addRockerToJam(rocker, it.id)
+            logger.info("A new rocker appeared!'$name' joined the jam")
+            ResponseEntity.ok(it.toRockerSessionDto(rocker))
         } ?: ResponseEntity.notFound().build()
     }
 
@@ -62,9 +63,9 @@ class TheTwoController(
     fun getLatestState(
         @RequestHeader(ROCKER_ID_HEADER) playerId: UUID,
     ): ResponseEntity<RockerSession> {
-        val player = rockerService.getRocker(playerId).alsoAddToSpan()
+        val rocker = rockerService.getRocker(playerId).alsoAddToSpan()
         return sessionService.getActiveSession()
-            ?.let { ResponseEntity.ok(it.toRockerSessionDto(player)) }
+            ?.let { ResponseEntity.ok(it.toRockerSessionDto(rocker)) }
             ?: ResponseEntity.notFound().build()
     }
 
@@ -88,15 +89,21 @@ class TheTwoController(
     ): ResponseEntity<StrumResponse> {
         val rocker = rockerService.getRocker(rockerId).alsoAddToSpan()
 
-        logger.info("Rocker '${rocker.name}' successfully tapped their screen, strumming ${chord.name}. Rock on!")
+        if(chord == PowerChord.NOTE) {
+            logger.warn("Snap! Rocker ${rocker.name} strummed a wrong chord maybe...?")
+        } else if (chord == PowerChord.EXPLOSION) {
+            logger.error("Oh no!!! Rocker ${rocker.name} messed up the jam with a wrong chord!!!")
+        }
+
         rockerService.addChordToRocker(rocker, chord, strumTime)
-        sessionService.processRockerStrum(rocker, chord)
+        logger.info("Rocker '${rocker.name}' successfully rocked their screen, strumming ${chord.toEmoji()}. Rock on!")
+
         return ResponseEntity.accepted().body(
             StrumResponse(
                 rockerId = rocker.id,
                 rockerName = rocker.name,
                 strumTime = strumTime,
-                chord = chord.name,
+                chord = chord,
             )
         )
     }
@@ -111,5 +118,16 @@ class TheTwoController(
         val currentSpan = Span.current()
         currentSpan.setAttribute(ROCKER_ID_SPAN_ATTRIBUTE, id.toString())
         currentSpan.setAttribute(ROCKER_NAME_SPAN_ATTRIBUTE, name)
+    }
+}
+
+fun PowerChord.toEmoji(): String {
+    return when (this) {
+        PowerChord.GUITAR -> "\uD83C\uDFB8" //🎸
+        PowerChord.HORNS -> "\uD83E\uDD18" //🤘
+        PowerChord.EXPLOSION -> "\uD83D\uDCA5" //💥
+        PowerChord.SKULL -> "\uD83D\uDC80" //💀
+        PowerChord.TIGER -> "\uD83D\uDC2F" //🐯
+        PowerChord.NOTE -> "\uD83C\uDFB5" // 🎵
     }
 }
