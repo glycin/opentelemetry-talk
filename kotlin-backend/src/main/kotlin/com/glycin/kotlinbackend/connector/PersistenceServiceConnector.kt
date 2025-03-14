@@ -1,9 +1,10 @@
 package com.glycin.kotlinbackend.connector
 
 import com.glycin.kotlinbackend.controller.PLAYER_ID_HEADER
-import com.glycin.kotlinbackend.model.ActionType
-import com.glycin.kotlinbackend.model.Session
+import com.glycin.kotlinbackend.controller.ROCKER_ID_HEADER
+import com.glycin.kotlinbackend.model.*
 import com.glycin.kotlinbackend.model.rest.AddActionResponse
+import com.glycin.kotlinbackend.model.rest.StrumResponse
 import org.springframework.cloud.openfeign.FeignClient
 import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RequestMapping
@@ -31,4 +32,22 @@ interface PersistenceServiceConnector {
         @RequestParam actionTime: Long,
         @RequestParam actionType: ActionType,
     ): AddActionResponse
+
+    @RequestMapping(method = [RequestMethod.GET], value = ["/jam/getLatestState"])
+    fun getLatestJamState(
+        @RequestHeader(ROCKER_ID_HEADER) playerId: UUID,
+    ): RockerSession
+
+    @RequestMapping(method = [RequestMethod.GET], value = ["/rocker/create"])
+    fun createRocker(
+        @RequestParam id: UUID,
+        @RequestParam name: String,
+    ): RockerSession?
+
+    @RequestMapping(method = [RequestMethod.POST], value = ["/rocker/strum"])
+    fun postStrum(
+        @RequestHeader(ROCKER_ID_HEADER) rockerId: UUID,
+        @RequestParam strumTime: Long,
+        @RequestParam chord: PowerChord,
+    ): StrumResponse
 }
