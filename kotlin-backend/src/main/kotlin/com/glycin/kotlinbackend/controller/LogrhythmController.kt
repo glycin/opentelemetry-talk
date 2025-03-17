@@ -57,8 +57,8 @@ class LogrhythmController(
         @RequestHeader(ROCKER_ID_HEADER) rockerID: UUID,
         @RequestBody action: RestStrumBody,
     ): ResponseEntity<Unit> {
-        logger.info("Rocker '$rockerID' is trying to strum chord : ${action.chord.toEmoji()} at ${LocalDateTime.ofEpochSecond(action.timestamp, 0, ZoneOffset.UTC)}!")
         persistenceConnector.postStrum(rockerID, action.timestamp, action.chord).also { response ->
+            logger.info("Rocker '${response.rockerName}' is trying to strum chord : ${action.chord.toEmoji()} at ${Instant.ofEpochMilli(action.timestamp).atOffset(ZoneOffset.UTC).toLocalDateTime()}!")
             addToSpan(rockerId = response.rockerId, rockerName = response.rockerName)
         }
         return ResponseEntity.noContent().build()
