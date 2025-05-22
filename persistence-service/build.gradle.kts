@@ -1,7 +1,7 @@
 plugins {
-    kotlin("jvm") version "2.1.10"
-    kotlin("plugin.spring") version "2.1.10"
-    id("org.springframework.boot") version "3.4.2"
+    kotlin("jvm") version "2.1.21"
+    kotlin("plugin.spring") version "2.1.21"
+    id("org.springframework.boot") version "3.4.5"
     id("io.spring.dependency-management") version "1.1.7"
 }
 
@@ -56,8 +56,9 @@ tasks {
             "paketo-buildpacks/executable-jar",
             "paketo-buildpacks/dist-zip",
             "paketo-buildpacks/spring-boot",
-            "gcr.io/paketo-buildpacks/opentelemetry",
+            "docker.io/paketobuildpacks/opentelemetry",
         )
         environment.put("BP_OPENTELEMETRY_ENABLED", "true")
+        environment.put("BP_SPRING_CLOUD_BINDINGS_DISABLED", "true")
     }
 }
