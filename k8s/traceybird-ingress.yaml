@@ -36,3 +36,10 @@ spec:
                 name: persistence-service
                 port:
                   number: 1337
+          - path: "/otel-collector"
+            pathType: Prefix
+            backend:
+              service:
+                name: otel-collector-fe
+                port:
+                  number: 80
