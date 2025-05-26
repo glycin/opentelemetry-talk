@@ -126,6 +126,13 @@ data:
           http:
             endpoint: ${env:MY_POD_IP}:4318
     processors:
+      filter/spans:
+        spans:
+          exclude:
+            match_type: regexp
+            attributes:
+              - key: http.route
+                value: ".*\\/health(\\/.*)?"
       batch:
       memory_limiter:
         # 80% of maximum memory up to 2G
@@ -198,11 +205,11 @@ data:
       pipelines:
         traces:
           receivers: [otlp]
-          processors: [resourcedetection, transform/drop_unneeded_resource_attributes, memory_limiter, batch]
+          processors: [filter/spans, resourcedetection, transform/drop_unneeded_resource_attributes, memory_limiter, batch]
           exporters: [otlphttp/grafana_cloud, grafanacloud]
         metrics:
           receivers: [otlp]
-          processors: [resourcedetection, transform/drop_unneeded_resource_attributes, transform/add_resource_attributes_as_metric_attributes, batch]
+          processors: [filter/spans, resourcedetection, transform/drop_unneeded_resource_attributes, transform/add_resource_attributes_as_metric_attributes, batch]
           exporters: [otlphttp/grafana_cloud]
         metrics/grafanacloud:
           receivers: [grafanacloud]
@@ -210,7 +217,7 @@ data:
           exporters: [otlphttp/grafana_cloud]
         logs:
           receivers: [otlp]
-          processors: [resourcedetection, transform/drop_unneeded_resource_attributes, batch]
+          processors: [filter/spans, resourcedetection, transform/drop_unneeded_resource_attributes, batch]
           exporters: [otlphttp/grafana_cloud]
 ---
 apiVersion: v1
